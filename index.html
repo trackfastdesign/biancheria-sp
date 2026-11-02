@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diretório de Lojas - Moda Íntima</title>
+  <style>
+    :root {
+      --bg-sidebar: #1e293b;
+      --bg-sidebar-hover: #334155;
+      --bg-sidebar-active: #0f172a;
+      --text-sidebar: #f8fafc;
+      --bg-main: #f1f5f9;
+      --text-main: #334155;
+      --red-dark: #8B0000;
+      --white: #ffffff;
+      --accent: #3b82f6;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 320px;
+      background: var(--bg-sidebar);
+      color: var(--text-sidebar);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+
+    .sidebar h2 {
+      padding: 20px;
+      margin: 0;
+      font-size: 18px;
+      background: var(--bg-sidebar-active);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid #475569;
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar li {
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 1px solid #334155;
+      transition: all 0.2s;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar li:hover, .sidebar li.active {
+      background: var(--bg-sidebar-hover);
+      border-left: 4px solid var(--accent);
+    }
+
+    .sidebar li span.badge {
+      background: #475569;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .content-wrapper {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    /* Special Sections (Red/White) */
+    .special-section {
+      background-color: var(--red-dark);
+      color: var(--white);
+      padding: 40px;
+      border-radius: 8px;
+      margin-bottom: 40px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .special-section h2, 
+    .special-section h3 {
+      color: var(--white);
+      margin-top: 0;
+    }
+
+    .special-section hr {
+      border: 0;
+      height: 1px;
+      background-color: var(--white);
+      margin: 20px 0;
+      opacity: 0.5;
+    }
+
+    .special-section a {
+      color: var(--white);
+      text-decoration: underline;
+    }
+
+    .special-section p {
+      line-height: 1.6;
+      font-size: 15px;
+      text-align: justify;
+    }
+
+    /* Area Styling (Store Cards) */
+    .area-container {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: none; 
+    }
+
+    .area-container.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .area-header {
+      border-bottom: 2px solid var(--bg-main);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    .area-header h2 {
+      margin: 0;
+      color: var(--bg-sidebar);
+      font-size: 24px;
+    }
+
+    .okr-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: transform 0.2s;
+    }
+
+    .okr-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .okr-id {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .okr-obj {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--bg-sidebar);
+      margin-bottom: 15px;
+    }
+
+    .kr-list {
+      margin: 0 0 15px 0;
+      padding-left: 20px;
+      font-size: 14px;
+      color: #475569;
+    }
+
+    .kr-list li {
+      margin-bottom: 6px;
+    }
+
+    /* Index Table */
+    .index-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 10px;
+    }
+    .index-item {
+      padding: 5px;
+      border-bottom: 1px dotted rgba(255,255,255,0.3);
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .index-item:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .sidebar ::-webkit-scrollbar-thumb { background: #475569; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Nav -->
+  <div class="sidebar">
+    <h2>Catálogo de Lojas</h2>
+    <div class="sidebar-scroll">
+      <ul id="sidebar-menu">
+        <li onclick="showSection('apresentacao')" id="menu-apresentacao" class="active">Apresentação</li>
+        <li onclick="showSection('lojas')" id="menu-lojas">Todas as Lojas <span class="badge" id="badge-total">0</span></li>
+        <li onclick="showSection('indice')" id="menu-indice">Índice Remissivo</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main" id="main-content">
+    <div class="content-wrapper">
+
+      <!-- 1. Apresentação (Dark Red) -->
+      <div id="sec-apresentacao" class="special-section active">
+        <h2>Diretório de Moda Íntima</h2>
+        <hr>
+        <p>Este diretório consolida os dados de diversas lojas de moda íntima e lingerie, com foco na região de São Paulo, além de algumas localidades internacionais. O catálogo foi estruturado utilizando o modelo visual paramétrico.</p>
+        <p><strong>Navegação:</strong> Utilize o menu lateral para visualizar a lista completa de lojas, avaliações, endereços e horários de funcionamento extraídos da nova base de dados.</p>
+      </div>
+
+      <!-- 2. Índice Remissivo (Dark Red) -->
+      <div id="sec-indice" class="special-section" style="display:none;">
+        <h2>Índice Remissivo</h2>
+        <hr>
+        <p>Navegação rápida pelas Lojas mapeadas neste documento:</p>
+        <div class="index-grid" id="index-grid-container">
+          <!-- Gerado via JS -->
+        </div>
+      </div>
+
+      <!-- Container para Lojas -->
+      <div id="sec-lojas" class="area-container">
+        <div class="area-header">
+          <h2>Lista de Lojas</h2>
+          <p>Resultados extraídos da plataforma de busca e limpos para exibição.</p>
+        </div>
+        <div id="lojas-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Dados Tratados (Ruídos como "Patrocinado" e "Entrega" foram removidos)
+    const rawData = `Ponto da Lingerie - Shopping VM Vila Mariana
+4,2(60)
+Loja de lingerie · R. Pelotas, 83
+Fechado · Abre às 10:00 · (11) 96632-4905
+
+Pijamas e Lingerie Intimitat Shopping Ibirapuera
+4,5(30)
+Loja de lingerie · Av. Ibirapuera, 3103 - Lj 77A
+Fechado · Abre às 10:00 · (11) 5542-9963
+
+MCO Lingerie
+4,4(18)
+Loja de lingerie · R. Gravi, 20
+Fechado · Abre às 09:00 · (11) 5084-2368
+
+Pijamas e Lingerie Intimitat Paulista
+4,6(69)
+Loja de lingerie · Praça Oswaldo Cruz, 124 - Lj 1
+Fechado · Abre às 08:30 · (11) 3285-6198
+
+Intimissimi (Olimpíadas)
+4,4(127)
+Loja de lingerie · R. Olimpíadas, 360
+Fechado · Abre às 10:00 · (11) 97676-0567
+
+Outlet Lingerie Liberdade
+4,2(24)
+Loja de lingerie · Rua Tamandaré, 897
+Fechado · Abre às 09:00 · (11) 95587-8724
+
+Intimissimi (Treze de Maio)
+3,9(102)
+Loja de lingerie · R. Treze de Maio, 1947
+Fechado · Abre às 10:00 · (11) 98797-3882
+
+Intimissimi (Paulista)
+3,9(14)
+Loja de lingerie · Av. Paulista, 1230
+Fechado · Abre às 10:00 · (11) 97680-3897
+
+Le Sophis - Lingerie e Pijamas
+4,7(13)
+Loja de lingerie · R. Min. Jesuíno Cardoso, 193
+Fechado · Abre às 10:00 · (11) 94558-2625
+
+Intimissimi (João Cachoeira)
+4,5(4)
+Loja de lingerie · R. João Cachoeira, 446
+Fechado · Abre às 09:00 · (11) 91000-4092
+
+Intimissimi (Higienópolis)
+4,2(40)
+Loja de lingerie · Av. Higienópolis, 618
+Fechado · Abre às 10:00 · (11) 95882-4052
+
+INTIMA STORE
+4,4(254)
+Loja de lingerie · R. Maria Marcolina, 424
+Fechado · Abre ter. às 08:00 · (11) 2692-4304
+
+Intimissimi (Palestra Itália)
+3,8(81)
+Loja de lingerie · R. Palestra Itália, 500
+Fechado · Abre às 10:00 · (11) 94377-7349
+
+Intimissimi (Reg. Feijó)
+4,2(152)
+Loja de lingerie · Av. Reg. Feijó, 1739
+Fechado · Abre às 10:00 · (11) 94520-2922
+
+Gardênia Commerce
+4,9(15.175)
+Loja de lingerie · Rua Desembargador do Vale, 194
+Fechado · Abre às 09:00 · (11) 95493-1400
+
+Intimissimi (Casalbuono)
+4,4(149)
+Loja de lingerie · Tv. Casalbuono, 120
+Fechado · Abre às 10:00 · (11) 94730-8872
+
+Lully Intimates
+Nenhuma avaliação
+Loja de lingerie · R. Alexandre Levi
+(11) 93008-3032
+
+Loja de Lingerie
+Nenhuma avaliação
+Loja de lingerie
+Fechado · Abre às 09:00 · (11) 3135-4626
+
+Prada Sao Paulo Iguatemi Donna
+4,5(2)
+Loja de lingerie · Av. Brig. Faria Lima, 2232
+Fechado · Abre às 10:00 · (11) 3056-6600
+
+Intimisi Boutique
+5,0(5)
+Loja de lingerie
+Fechado · Abre às 09:30 · (11) 99781-8134
+
+Exclusiva Sex Shop - Vila Mariana
+5,0(2.349)
+Loja de lingerie · Rua Domingos de Morais, 397
+Fechado · Abre às 10:00 · (11) 2250-7175
+
+Duzani Lingerie São Paulo - Mega Distribuidora
+4,9(78)
+Loja de lingerie · R. Paramu, 320
+Fechado · Abre às 09:00 · (11) 92178-1227
+
+MK Lingerie | Moda Íntima
+5,0(17)
+Loja de lingerie · R. Paulo Eiró, 168
+Fechado · Abre às 09:00 · (11) 98723-0505
+
+Identidade Intima Ltda
+5,0(12)
+Loja de lingerie · R. Tucambira, 70
+Fechado · Abre às 11:00 · (11) 91779-9076
+
+Underwear De Bernardi
+4,5(52)
+Loja de lingerie · Corso Buenos Aires, 49
+Fechado · Abre às 15:00 · +39 02 204 7598
+
+IMPÉRIO LINGERIE
+Nenhuma avaliação
+Loja de lingerie · R. das Grumixamas, 02
+Fechado · Abre às 09:30 · (11) 98461-4702
+
+Solo Intimo
+4,2(169)
+Loja de lingerie · Via Angelo Morettini, 19
+Fechado · Abre às 09:00 · +39 0742 321279
+
+Gruppo Intimo
+5,0(10)
+Loja especializada · Av. Cardeal Santiago Luís Copello, 824
+Fechado · Abre às 08:30 · (11) 97176-1161
+
+Miu Miu Sao Paulo JK Iguatemi
+5,0(9)
+Loja de lingerie · Av. Pres. Juscelino Kubitschek, 2041
+Fechado · Abre às 10:00 · (11) 5525-6370
+
+Encanto Intimo
+Nenhuma avaliação
+Loja de lingerie · R. Santo Antônio de Categero
+(11) 98778-6517
+
+A Cumplice a loja virtual da mulher moderna
+Nenhuma avaliação
+Loja de lingerie · Av. do Café, 130
+Fechado · Abre às 09:00 · (11) 5017-3932
+
+INTIMOTY Gallery di Bacciaglia Stefano
+4,6(63)
+Loja de lingerie · Viale Antonio Giuglini, 40
+Fechado · Abre às 16:00 · +39 0721 802098
+
+Empório das Calcinhas
+4,0(4)
+Loja de lingerie · Av. Ordem e Progresso, 157
+Fechado · Abre às 09:00 · (11) 93467-9058
+
+L'intimo
+4,9(8)
+Loja de lingerie · Via Antonio Gramsci
+Fechado · Abre às 09:00 · +39 393 242 7372
+
+Pigiameria | Pigiami e Intimo Uomo Donna | Latina
+5,0(6)
+Loja de Roupa · Viale Cesare Augusto, 33
+Fechado · Abre às 09:00 · +39 0773 285662`;
+
+    // Processador dos Dados
+    function parseData(text) {
+      const blocks = text.trim().split(/\n\s*\n/);
+      let lojas = [];
+
+      blocks.forEach((block, index) => {
+        const lines = block.split('\n');
+        if (lines.length >= 3) {
+          let name = lines[0];
+          let rating = lines[1];
+          let details = lines[2];
+          let status = lines[3] ? lines[3] : 'Contato não informado';
+          
+          lojas.push({ id: index + 1, name, rating, details, status });
+        }
+      });
+      return lojas;
+    }
+
+    function renderLojas() {
+      const lojasData = parseData(rawData);
+      
+      // Atualiza Badge
+      document.getElementById('badge-total').innerText = lojasData.length;
+      
+      const listContainer = document.getElementById('lojas-list');
+      const indexGrid = document.getElementById('index-grid-container');
+
+      lojasData.forEach(loja => {
+        // Criar Card
+        let card = document.createElement('div');
+        card.className = 'okr-card';
+        card.innerHTML = `
+          <div class="okr-id">Avaliação: ${loja.rating.replace('Nenhuma avaliação', 'Sem Avaliação')}</div>
+          <div class="okr-obj">${loja.id}. ${loja.name}</div>
+          <ul class="kr-list">
+            <li><strong>Categoria e Endereço:</strong> ${loja.details}</li>
+            <li><strong>Contato/Horário:</strong> ${loja.status}</li>
+          </ul>
+        `;
+        listContainer.appendChild(card);
+
+        // Criar item no Índice Remissivo
+        let indexItem = document.createElement('div');
+        indexItem.className = 'index-item';
+        indexItem.textContent = `${loja.id}. ${loja.name}`;
+        indexItem.onclick = () => showSection('lojas');
+        indexGrid.appendChild(indexItem);
+      });
+    }
+
+    // Função de Navegação SPA
+    function showSection(sectionId) {
+      const sections = document.querySelectorAll('.special-section, .area-container');
+      sections.forEach(sec => sec.style.display = 'none');
+      
+      const menus = document.querySelectorAll('.sidebar li');
+      menus.forEach(menu => menu.classList.remove('active'));
+
+      const activeSection = document.getElementById(`sec-${sectionId}`);
+      if(activeSection) {
+        activeSection.style.display = 'block';
+        activeSection.classList.add('active');
+      }
+
+      const activeMenu = document.getElementById(`menu-${sectionId}`);
+      if(activeMenu) {
+        activeMenu.classList.add('active');
+      }
+
+      document.getElementById('main-content').scrollTop = 0;
+    }
+
+    // Inicialização
+    window.onload = () => {
+      renderLojas();
+      showSection('apresentacao');
+    };
+  </script>
+</body>
+</html>
